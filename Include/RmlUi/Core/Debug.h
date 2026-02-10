@@ -5,10 +5,17 @@
 // Define for breakpointing.
 #if defined(RMLUI_PLATFORM_WIN32)
 	#if defined(__MINGW32__)
+		#if defined(__aarch64__) || defined(_M_ARM64)
+		#define RMLUI_BREAK         \
+			{                       \
+				__debugbreak();     \
+			}
+		#else
 		#define RMLUI_BREAK       \
 			{                     \
 				asm("int $0x03"); \
 			}
+		#endif
 	#elif defined(_MSC_VER)
 		#define RMLUI_BREAK     \
 			{                   \
