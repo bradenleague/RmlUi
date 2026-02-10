@@ -13,7 +13,7 @@
 #if SDL_MAJOR_VERSION >= 3
 	#include <SDL3/SDL_vulkan.h>
 #else
-	#include <SDL2/SDL_vulkan.h>
+	#include <SDL_vulkan.h>
 #endif
 
 /**
