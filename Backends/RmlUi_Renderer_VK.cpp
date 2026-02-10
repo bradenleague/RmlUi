@@ -837,15 +837,15 @@ void RenderInterface_VK::Initialize_Instance(Rml::Vector<const char*> required_e
 	Rml::Vector<const char*> instance_extension_names = std::move(required_extensions);
 	CreatePropertiesFor_Instance(instance_layer_names, instance_extension_names);
 
+	const bool has_portability_enumeration_extension =
+		std::find_if(instance_extension_names.cbegin(), instance_extension_names.cend(), [](const char* extension_name) {
+			return extension_name && strcmp(extension_name, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0;
+		}) != instance_extension_names.cend();
+
 	VkInstanceCreateInfo info_instance = {};
 	info_instance.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	info_instance.pNext = &debug_validation_features_ext;
-#ifdef RMLUI_PLATFORM_MACOSX
-	// MoltenVK requires portability enumeration flag
-	info_instance.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
-#else
-	info_instance.flags = 0;
-#endif
+	info_instance.flags = has_portability_enumeration_extension ? VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR : 0;
 	info_instance.pApplicationInfo = &info;
 	info_instance.enabledExtensionCount = static_cast<uint32_t>(instance_extension_names.size());
 	info_instance.ppEnabledExtensionNames = instance_extension_names.data();
@@ -892,17 +892,17 @@ void RenderInterface_VK::Initialize_Device() noexcept
 	info_queue[1].pQueuePriorities = queue_priorities;
 	info_queue[1].queueFamilyIndex = m_queue_index_compute;
 
+	VkPhysicalDeviceFeatures supported_features = {};
+	vkGetPhysicalDeviceFeatures(m_p_physical_device, &supported_features);
+
 	VkPhysicalDeviceFeatures features_physical_device = {};
 
 	features_physical_device.fillModeNonSolid = true;
 	features_physical_device.fragmentStoresAndAtomics = true;
 	features_physical_device.vertexPipelineStoresAndAtomics = true;
 	features_physical_device.shaderImageGatherExtended = true;
-#ifndef RMLUI_PLATFORM_MACOSX
-	// MoltenVK on Apple Silicon doesn't support these features
-	features_physical_device.pipelineStatisticsQuery = true;
-	features_physical_device.wideLines = true;
-#endif
+	features_physical_device.pipelineStatisticsQuery = supported_features.pipelineStatisticsQuery;
+	features_physical_device.wideLines = supported_features.wideLines;
 
 	VkPhysicalDeviceShaderSubgroupExtendedTypesFeaturesKHR shader_subgroup_extended_type = {};
 
