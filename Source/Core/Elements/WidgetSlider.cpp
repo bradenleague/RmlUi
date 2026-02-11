@@ -372,7 +372,7 @@ void WidgetSlider::ProcessEvent(Event& event)
 		if (event.GetParameter("button", -1) != 0)
 			break;
 
-		if (event.GetTargetElement() == track || event.GetTargetElement() == progress)
+		if (event.GetTargetElement() == track || event.GetTargetElement() == progress || event.GetTargetElement() == parent)
 		{
 			float mouse_position, bar_halfsize;
 
@@ -417,7 +417,8 @@ void WidgetSlider::ProcessEvent(Event& event)
 
 	case EventId::Dragstart:
 	{
-		if (event.GetTargetElement() == bar || event.GetTargetElement() == track || event.GetTargetElement() == progress)
+		if (event.GetTargetElement() == bar || event.GetTargetElement() == track || event.GetTargetElement() == progress ||
+			event.GetTargetElement() == parent)
 		{
 			bar->SetPseudoClass("active", true);
 
@@ -430,7 +431,8 @@ void WidgetSlider::ProcessEvent(Event& event)
 	break;
 	case EventId::Drag:
 	{
-		if (event.GetTargetElement() == bar || event.GetTargetElement() == track || event.GetTargetElement() == progress)
+		if (event.GetTargetElement() == bar || event.GetTargetElement() == track || event.GetTargetElement() == progress ||
+			event.GetTargetElement() == parent)
 		{
 			float new_bar_offset = event.GetParameter<float>((orientation == HORIZONTAL ? "mouse_x" : "mouse_y"), 0) - bar_drag_anchor;
 			float new_bar_position = AbsolutePositionToBarPosition(new_bar_offset);
@@ -441,7 +443,8 @@ void WidgetSlider::ProcessEvent(Event& event)
 	break;
 	case EventId::Dragend:
 	{
-		if (event.GetTargetElement() == bar || event.GetTargetElement() == track || event.GetTargetElement() == progress)
+		if (event.GetTargetElement() == bar || event.GetTargetElement() == track || event.GetTargetElement() == progress ||
+			event.GetTargetElement() == parent)
 		{
 			bar->SetPseudoClass("active", false);
 		}
